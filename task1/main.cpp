@@ -3,7 +3,9 @@
 /*
  * #define SQR(x) x*x
  * if input will be SQR(1+1) result must be 4, but we have 3 because SQR(1+1) translates to 1+1*1+1
- * we must use #define SQR(x) ((x)*(x)) then we have result ((1+1)*(1+1)) = 4
+ * we must use
+ * #define SQR(x) ((x)*(x))
+ * then we have result ((1+1)*(1+1)) = 4
 */
 
 // in C++11 add constexpr

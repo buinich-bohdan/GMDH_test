@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include <errno.h>
 
 void print_arr(int *arr, size_t n)
 {
@@ -20,24 +19,26 @@ int compare(const void * x1, const void * x2)
 int main(int argc, char * argv[]){
 
     struct stat buffer;
-
     int status;
     int fd;
 
-    fd = open("/home/bohdan/CLionProjects/GMDH/task3.1/logfile.txt", O_RDONLY);
+    fd = open("/home/bohdan/CLionProjects/GMDH/logfile.txt", O_RDWR);
+
     status = fstat(fd, &buffer);
     size_t n = buffer.st_size/sizeof(int);
     std::cout << "number of data items in file: " <<  n << std::endl;
 
     /* void *mmap(void *addr, size_t length, int prot, int flags,int fd, off_t offset)
-     * mmap() creates a new mapping in the virtual address space of the
-       calling process.
+     * mmap() creates a new mapping in the virtual address space of the calling process.
      * PROT_READ  Pages may be read.
+     * PORT_WRITE Pages may be write.
      * MAP_SHARED Shared map.
+     * MAP_FILE   Shared file.
      */
+    int *ram = static_cast<int*>(mmap(nullptr, n, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0));
 
-    int *mem = static_cast<int*>(mmap(nullptr, n, PROT_READ, MAP_SHARED, fd, 0));
-    std::qsort(mem, n, sizeof(int), compare);
-    print_arr(mem, n);
+    std::qsort(ram, n, sizeof(int), compare);
+    print_arr(ram, n);
+
     return 0;
 }

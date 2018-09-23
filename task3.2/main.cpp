@@ -1,7 +1,7 @@
 #include <iostream>
+#include <cstring>
 
-
-void print_counter(int* arr, int range)
+void print_arr(int* arr, int range)
 {
     int count = 0;
     for (int i = 0; i < range; ++i)
@@ -12,16 +12,13 @@ void print_counter(int* arr, int range)
                 return;
         }
 }
-
-int find_range(FILE* f, int bufn)
+int find_range(FILE* f, int size)
 {
     int range = 0;
-    int read;
-
-    int* buf = new int(bufn);
+    int* buf = new int [size];
 
     while (!feof(f)) {
-        read = fread(buf, sizeof(int), bufn, f);
+      int read = fread(buf, sizeof(int), size, f);
         if (read == 0)
             break;
 
@@ -31,42 +28,48 @@ int find_range(FILE* f, int bufn)
     }
     range += 1;
     fseek(f, 0, SEEK_SET);
-    delete buf;
+    delete[] buf;
     return range;
 }
 
-int counting_sort(FILE* f, int range, int bufn, int** pcounter)
+void counting_sort(FILE *f, int range, int size, int **pcount)
 {
+    int *counter = new int [range]; //array of elements
 
-    int read;
-    int* counter = new int(range);
-    int* buf = new int(bufn);//buffer for elements
+    memset(counter, 0, range * sizeof(int));
 
-    while (!feof(f)) {
-        read = (int)fread(buf, sizeof(int), bufn, f);
+    int *buf = new int [size]; //buffer for elements
+
+    while (!feof(f))
+    {
+        int read = fread(buf, sizeof(int), size, f);
         if (read == 0)
             break;
 
         for (int i = 0; i < read; i++)
-            counter[buf[i]]++; //  plus one repetition for an element
+            ++counter[buf[i]]; //plus one repetition for an element
     }
-
-    *pcounter = counter;
-
-    return 0;
+    delete[] buf;
+    *pcount = counter;
+    delete[] counter;
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
-    FILE* f;
-    int bufn = 1000000;
-    int range = -1;
-    int* counter;
+    FILE* f; //pointer to the stream buffer
+    int range = -1; //maximum value our stream buffer
+    int* count; //counter
 
-    f = fopen("/home/bohdan/CLionProjects/GMDH/task3.1/logfile.txt", "rb");
-    range = find_range(f, bufn); //maximum element in file
-    counting_sort(f, range, bufn, &counter);
-    print_counter(counter, range);
+    f = fopen("/home/bohdan/CLionProjects/GMDH/logfile.txt", "rb"); //our file
+
+    fseek(f , 0 , SEEK_END); //go to end of file
+    int n = ftell(f) /sizeof(int); //numeber of elements in file
+    std::cout << "number of data items in file: " <<  n << std::endl;
+    fseek(f , 0 , SEEK_SET); //back to start of file
+
+    range = find_range(f, n); //maximum element in file
+    counting_sort(f, range, n, &count);
+    print_arr(count, range);
 
     return 0;
 }
