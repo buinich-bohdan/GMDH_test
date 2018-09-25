@@ -14,7 +14,7 @@ private:
 public:
     const string& licensePlate;
     char    *strRet = new char[256];
-    Car(const string& aLicensePlate = Car::def)
+  explicit Car(const string& aLicensePlate = Car::def)
             : licensePlate(aLicensePlate)
     {
     }
